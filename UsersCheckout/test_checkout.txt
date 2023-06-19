@@ -1,0 +1,9 @@
+Order Summary:
+Product: iPhone
+Quantity: 1
+Total Price: PHP45000.0
+Address: manila
+Contact Number: 123
+Payment Method: COD
+Estimated Date of Arrival: 2023-06-26 13:18:14
+

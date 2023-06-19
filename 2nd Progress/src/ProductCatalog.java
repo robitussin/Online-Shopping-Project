@@ -16,15 +16,16 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
 
 public class ProductCatalog extends JFrame {
     private List<Product> products;
@@ -104,7 +105,7 @@ public class ProductCatalog extends JFrame {
 
         user = getUserByEmail(userEmail);
 
-        displayProducts("C:/Users/Gabion/Documents/Online Shopping/Product");
+        displayProducts("C:/Users/SLY/Desktop/GABION/Product");
     }
 
     private void displayProducts(String directoryPath) {
@@ -222,100 +223,138 @@ public class ProductCatalog extends JFrame {
     }
 
     private void openCart() {
-    Cart cartWindow = new Cart(this, user, cart);
-    cartWindow.setVisible(true);
-    setVisible(false);
-}
+
+        // Cart cartWindow = null;
+        String checkoutFile = "UsersCart/" + user.getUsername() + "_itemsincart.txt";
+        File file = new File(checkoutFile);
+
+        System.out.println(checkoutFile);
+        if (!checkoutFile.isEmpty() && file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(checkoutFile))) {
+                String line;
+                Cart cartWindow = null;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                    String[] splited = line.split("\\s+");
+                    Product productincart = new Product(splited[0], splited[1], splited[2],
+                            Double.parseDouble(splited[3]), Integer.parseInt(splited[4]));
+
+                    cart.add(productincart);
+                    cartWindow = new Cart(this, user, cart);
+                }
+
+                cartWindow.setVisible(true);
+                setVisible(false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            System.out.println(cart);
+            Cart cartWindow = new Cart(this, user, cart);
+            cartWindow.setVisible(true);
+            setVisible(false);
+        }
+    }
 
     private void openCustomizeProductsWindow() {
-        String productsFilePath = "C:/Users/Gabion/Documents/Online Shopping/Product";
+        String productsFilePath = "C:/Users/SLY/Desktop/GABION/Product";
         CustomizeProduct customizeProductWindow = new CustomizeProduct(this, products, productsFilePath);
         customizeProductWindow.setVisible(true);
     }
 
+    private void openUserProfile() {
+        User currentUser = User.getCurrentUser();
 
- private void openUserProfile() {
-    User currentUser = User.getCurrentUser();
+        if (currentUser != null) {
+            String loggedInUserEmail = currentUser.getEmail();
+            User user = getUserByEmail(loggedInUserEmail);
 
-    if (currentUser != null) {
-        String loggedInUserEmail = currentUser.getEmail();
-        User user = getUserByEmail(loggedInUserEmail);
+            if (user != null) {
+                UserProfile userProfile = new UserProfile(this, user, cart);
+                userProfile.setVisible(true);
+                setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(this, "Error opening user profile. Please log in again.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                User.setCurrentUser(null);
+                dispose();
 
-        if (user != null) {
-            UserProfile userProfile = new UserProfile(this, user, cart);
-            userProfile.setVisible(true);
-            setVisible(false);
-        } else {
-            JOptionPane.showMessageDialog(this, "Error opening user profile. Please log in again.", "Error", JOptionPane.ERROR_MESSAGE);
-            User.setCurrentUser(null);
-            dispose(); 
-
-            UserLogin loginScreen = new UserLogin(null);
-            loginScreen.setVisible(true);
-        }
-    } else {
-        JOptionPane.showMessageDialog(this, "Please exit the program first then log in to access the user profile.", "User Profile", JOptionPane.INFORMATION_MESSAGE);
-    }
-}
-
-private User getUserByEmail(String email) {
-    try (BufferedReader reader = new BufferedReader(new FileReader("users.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split(",");
-            if (parts.length == 3 && parts[1].equals(email)) {
-                String username = parts[0];
-                String password = parts[2];
-                return new User(username, email, password);
+                UserLogin loginScreen = new UserLogin(null);
+                loginScreen.setVisible(true);
             }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please exit the program first then log in to access the user profile.",
+                    "User Profile", JOptionPane.INFORMATION_MESSAGE);
         }
-    } catch (IOException e) {
-        e.printStackTrace();
     }
 
-    return null;
-}
+    private User getUserByEmail(String email) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("users.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 3 && parts[1].equals(email)) {
+                    String username = parts[0];
+                    String password = parts[2];
+                    return new User(username, email, password);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     public void updateProducts(List<Product> updatedProducts) {
         products = updatedProducts;
         displayProducts(products);
     }
 
-public void updateProductQuantity(String productName, String category, String ram, double price, int updatedQuantity, boolean addToCart) {
-    String folderPath = "C:/Users/Gabion/Documents/Online Shopping/Product";
-    String filePath = folderPath + "/" + productName + ".txt";
+    public void updateProductQuantity(String productName, String category, String ram, double price,
+            int updatedQuantity, boolean addToCart) {
+        String folderPath = "C:/Users/SLY/Desktop/GABION/Product";
+        String filePath = folderPath + "/" + productName + ".txt";
 
-    File productFile = new File(filePath);
-    try (BufferedReader reader = new BufferedReader(new FileReader(productFile))) {
-        String name = reader.readLine();
-        String currentCategory = reader.readLine();
-        String currentRAM = reader.readLine();
-        String priceString = reader.readLine();
-        String quantityString = reader.readLine();
+        File productFile = new File(filePath);
+        try (BufferedReader reader = new BufferedReader(new FileReader(productFile))) {
+            String name = reader.readLine();
+            String currentCategory = reader.readLine();
+            String currentRAM = reader.readLine();
+            String priceString = reader.readLine();
+            String quantityString = reader.readLine();
 
-        List<String> lines = new ArrayList<>();
-        while (name != null && currentCategory != null && currentRAM != null && priceString != null
-                && quantityString != null) {
-            if (name.equals(productName) && currentCategory.equals(category) && currentRAM.equals(ram)
-                    && Double.parseDouble(priceString) == price) {
-                if (addToCart) {
-                    int currentQuantity = Integer.parseInt(quantityString);
-                    int newQuantity = currentQuantity - updatedQuantity;
-                    if (newQuantity < 0) {
-                        newQuantity = 0;
-                    }
-                    lines.add(name);
-                    lines.add(currentCategory);
-                    lines.add(currentRAM);
-                    lines.add(priceString);
-                    lines.add(String.valueOf(newQuantity));
-
-                    for (Product product : products) {
-                        if (product.getName().equals(productName) && product.getCategory().equals(category)
-                                && product.getRAM().equals(ram) && product.getPrice() == price) {
-                            product.setQuantity(newQuantity);
-                            break;
+            List<String> lines = new ArrayList<>();
+            while (name != null && currentCategory != null && currentRAM != null && priceString != null
+                    && quantityString != null) {
+                if (name.equals(productName) && currentCategory.equals(category) && currentRAM.equals(ram)
+                        && Double.parseDouble(priceString) == price) {
+                    if (addToCart) {
+                        int currentQuantity = Integer.parseInt(quantityString);
+                        int newQuantity = currentQuantity - updatedQuantity;
+                        if (newQuantity < 0) {
+                            newQuantity = 0;
                         }
+                        lines.add(name);
+                        lines.add(currentCategory);
+                        lines.add(currentRAM);
+                        lines.add(priceString);
+                        lines.add(String.valueOf(newQuantity));
+
+                        for (Product product : products) {
+                            if (product.getName().equals(productName) && product.getCategory().equals(category)
+                                    && product.getRAM().equals(ram) && product.getPrice() == price) {
+                                product.setQuantity(newQuantity);
+                                break;
+                            }
+                        }
+                    } else {
+                        lines.add(name);
+                        lines.add(currentCategory);
+                        lines.add(currentRAM);
+                        lines.add(priceString);
+                        lines.add(quantityString);
                     }
                 } else {
                     lines.add(name);
@@ -324,42 +363,31 @@ public void updateProductQuantity(String productName, String category, String ra
                     lines.add(priceString);
                     lines.add(quantityString);
                 }
-            } else {
-                lines.add(name);
-                lines.add(currentCategory);
-                lines.add(currentRAM);
-                lines.add(priceString);
-                lines.add(quantityString);
+
+                name = reader.readLine();
+                currentCategory = reader.readLine();
+                currentRAM = reader.readLine();
+                priceString = reader.readLine();
+                quantityString = reader.readLine();
             }
 
-            name = reader.readLine();
-            currentCategory = reader.readLine();
-            currentRAM = reader.readLine();
-            priceString = reader.readLine();
-            quantityString = reader.readLine();
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(productFile))) {
-            for (String line : lines) {
-                writer.write(line);
-                writer.newLine();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(productFile))) {
+                for (String line : lines) {
+                    writer.write(line);
+                    writer.newLine();
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
 
-    if (productDetailsWindow != null && productDetailsWindow.isVisible() && addToCart) {
-        productDetailsWindow.updateQuantityLabel(updatedQuantity);
+        if (productDetailsWindow != null && productDetailsWindow.isVisible() && addToCart) {
+            productDetailsWindow.updateQuantityLabel(updatedQuantity);
+        }
     }
-}
 
     public List<Product> getProducts() {
         return products;
     }
 
-    
 }
-
-
-   

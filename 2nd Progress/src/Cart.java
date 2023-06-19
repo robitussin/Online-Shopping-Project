@@ -232,7 +232,7 @@ public class Cart extends JFrame {
 
                     cart.remove(product);
 
-                    saveCheckedOutItem(summaryBuilder.toString(),user.getUsername());
+                    saveCheckedOutItem(summaryBuilder.toString(), user.getUsername());
                     JOptionPane.showMessageDialog(this, "Order placed successfully!", "Order Confirmation",
                             JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -242,28 +242,31 @@ public class Cart extends JFrame {
         }
     }
 
-  private void saveCheckedOutItem(String orderSummary, String username) {
-    if (user != null) {
-        String folderPath = "C:\\Users\\Gabion\\Documents\\Online Shopping\\Users (Checkout)";
-        String filename = username + "_checkout.txt";
-        String filePath = folderPath + File.separator + filename;
+    private void saveCheckedOutItem(String orderSummary, String username) {
 
-        File directory = new File(folderPath);
-        if (!directory.exists()) {
-            boolean created = directory.mkdirs();
-            if (!created) {
-                JOptionPane.showMessageDialog(this, "Failed to create the directory.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+        if (user != null) {
+            String folderPath = "C:/Users/SLY/Desktop/GABION/UsersCheckout";
+            String filename = username + "_checkout.txt";
+            String filePath = folderPath + File.separator + filename;
+
+            File directory = new File(folderPath);
+            if (!directory.exists()) {
+                boolean created = directory.mkdirs();
+                if (!created) {
+                    JOptionPane.showMessageDialog(this, "Failed to create the directory.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+                writer.write(orderSummary);
+                writer.newLine();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Failed to save the checked out item:\n" + e.getMessage(), "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
             }
         }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            writer.write(orderSummary);
-            writer.newLine();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Failed to save the checked out item:\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
     }
-}
 }

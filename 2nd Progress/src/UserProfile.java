@@ -15,7 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class UserProfile extends JFrame {
- private String username;
+    private String username;
     private String email;
     private String password;
     private String checkoutFile;
@@ -43,7 +43,7 @@ public class UserProfile extends JFrame {
             e.printStackTrace();
         }
 
-        checkoutFile = "User (Checkout)/" + user.getUsername() + "_checkout.txt";
+        checkoutFile = "UsersCheckout/" + user.getUsername() + "_checkout.txt";
 
         JPanel userProfilePanel = new JPanel(new BorderLayout());
 

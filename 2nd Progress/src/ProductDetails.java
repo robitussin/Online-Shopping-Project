@@ -9,16 +9,14 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.io.FileWriter;
 
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-
 public class ProductDetails extends JFrame {
- private JButton backButton;
+    private JButton backButton;
     private JButton addToCartButton;
     private JLabel quantityLabel;
     private int initialQuantity;
@@ -30,7 +28,7 @@ public class ProductDetails extends JFrame {
         setSize(400, 400);
         setLayout(new BorderLayout());
 
-        initialQuantity = quantity; 
+        initialQuantity = quantity;
 
         JLabel nameLabel = new JLabel("Product Name: " + productName);
         JLabel categoryLabel = new JLabel("Category: " + category);
@@ -57,6 +55,10 @@ public class ProductDetails extends JFrame {
                             productCatalog.addToCart(
                                     new Product(productName, category, ram, price, selectedQuantity));
                             updateProductQuantity(productName, category, ram, price, quantity - selectedQuantity);
+
+                            // Saves items in cart in a text file
+                            saveItemInCart(User.getCurrentUser(), productName, category, ram, price, selectedQuantity);
+
                             JOptionPane.showMessageDialog(ProductDetails.this, "Product added to cart.",
                                     "Add to Cart", JOptionPane.INFORMATION_MESSAGE);
                             updateQuantityLabel(quantity - selectedQuantity);
@@ -107,7 +109,7 @@ public class ProductDetails extends JFrame {
 
     private void updateProductQuantity(String productName, String category, String ram, double price,
             int updatedQuantity) {
-        String folderPath = "C:/Users/Gabion/Documents/Online Shopping/Product";
+        String folderPath = "C:/Users/SLY/Desktop/GABION/Product";
         String filePath = folderPath + "/" + productName + ".txt";
 
         File productFile = new File(filePath);
@@ -120,7 +122,7 @@ public class ProductDetails extends JFrame {
             writer.newLine();
             writer.write(String.valueOf(price));
             writer.newLine();
-            writer.write(String.valueOf(initialQuantity)); 
+            writer.write(String.valueOf(initialQuantity));
             writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();
@@ -131,5 +133,32 @@ public class ProductDetails extends JFrame {
     public void updateQuantityLabel(int quantity) {
         quantityLabel.setText("Quantity: " + quantity);
     }
-}
 
+    // This method creates a file in UsersCart folder that stores the items adder in
+    // cart
+    private void saveItemInCart(User user, String name, String category, String ram, double price, int quantity) {
+
+        String folderPath = "C:/Users/SLY/Desktop/GABION/UsersCart";
+        String filename = user.getCurrentUser() + "_itemsincart.txt";
+        String filePath = folderPath + File.separator + filename;
+
+        File directory = new File(folderPath);
+        if (!directory.exists()) {
+            boolean created = directory.mkdirs();
+            if (!created) {
+                JOptionPane.showMessageDialog(this, "Failed to create the directory.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+            writer.write(name + " " + category + " " + ram + " " + price + " " + quantity);
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Failed to save the checked out item:\n" + e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+}

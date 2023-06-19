@@ -3,8 +3,10 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.io.FileWriter;
@@ -23,6 +25,7 @@ public class ProductDetails extends JFrame {
 
     public ProductDetails(ProductCatalog productCatalog, String productName, String category, String ram, double price,
             int quantity) {
+
         setTitle(productName + " Details");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 400);
@@ -57,6 +60,7 @@ public class ProductDetails extends JFrame {
                             updateProductQuantity(productName, category, ram, price, quantity - selectedQuantity);
 
                             // Saves items in cart in a text file
+
                             saveItemInCart(User.getCurrentUser(), productName, category, ram, price, selectedQuantity);
 
                             JOptionPane.showMessageDialog(ProductDetails.this, "Product added to cart.",
@@ -139,7 +143,8 @@ public class ProductDetails extends JFrame {
     private void saveItemInCart(User user, String name, String category, String ram, double price, int quantity) {
 
         String folderPath = "C:/Users/SLY/Desktop/GABION/UsersCart";
-        String filename = user.getCurrentUser() + "_itemsincart.txt";
+        String username = getUserByEmail(user.getEmail());
+        String filename = username + "_itemsincart.txt";
         String filePath = folderPath + File.separator + filename;
 
         File directory = new File(folderPath);
@@ -161,4 +166,22 @@ public class ProductDetails extends JFrame {
             e.printStackTrace();
         }
     }
+
+    private String getUserByEmail(String email) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("users.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 3 && parts[1].equals(email)) {
+                    String username = parts[0];
+                    return username;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
 }

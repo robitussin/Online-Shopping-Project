@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.midi.SysexMessage;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -224,8 +225,9 @@ public class ProductCatalog extends JFrame {
 
     private void openCart() {
 
-        // Cart cartWindow = null;
-        String checkoutFile = "UsersCart/" + user.getUsername() + "_itemsincart.txt";
+        String checkoutFile = "UsersCart/" + user.getUsername() +
+                "_itemsincart.txt";
+
         File file = new File(checkoutFile);
 
         System.out.println(checkoutFile);

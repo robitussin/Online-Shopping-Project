@@ -18,6 +18,10 @@ public class User {
         currentUser = user != null ? user : null;
     }
 
+    public void setUserName(String username) {
+        this.username = username;
+    }
+
     public String getUsername() {
         return username;
     }

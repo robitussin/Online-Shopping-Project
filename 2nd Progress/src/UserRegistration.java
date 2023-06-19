@@ -15,7 +15,7 @@ public class UserRegistration extends JFrame {
     private JTextField usernameField;
     private JTextField emailField;
     private JPasswordField passwordField;
-    
+
     public UserRegistration(Menu parentWindow) {
         setTitle("User Registration");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
